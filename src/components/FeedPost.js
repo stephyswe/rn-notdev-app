@@ -5,15 +5,22 @@ import {
   FontAwesome5,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import LikeImage from "../../assets/images/like.png";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+
+import LikeImage from "../../assets/images/like.png";
 
 /* Post component */
 export default function FeedPost({ post }) {
   const [isLiked, setIsLiked] = useState(false);
+  const navigation = useNavigation();
 
   return (
     <View style={styles.post}>
+       <Pressable
+        onPress={() => navigation.navigate("Profile", { id: post.User?.id })}
+        style={styles.header}
+      >
       {/* Post Header with details about the author */}
       <View style={styles.header}>
         <Image source={{ uri: post.User.image }} style={styles.profileImage} />
@@ -28,6 +35,7 @@ export default function FeedPost({ post }) {
           style={styles.icon}
         />
       </View>
+      </Pressable>
 
       {/* Post body with description and image */}
       <Text style={styles.description}>{post.description}</Text>
