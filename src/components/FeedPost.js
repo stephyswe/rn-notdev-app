@@ -10,33 +10,25 @@ import { useNavigation } from "@react-navigation/native";
 
 import LikeImage from "../../assets/images/like.png";
 
+const dummy_img =
+  "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
+
 /* Post component */
 export default function FeedPost({ post }) {
   const [isLiked, setIsLiked] = useState(false);
   const navigation = useNavigation();
 
-  let imageUrl
-  let name
-  if (post.User._j?.image) {
-    imageUrl = post.User?._j?.image
-    name = post.User?._j?.name
-  } else {
-    name = "Random"
-    imageUrl = "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/vadim.jpg"
-  }
-
-
   return (
     <View style={styles.post}>
       <Pressable
-        onPress={() => navigation.navigate("Profile", { id: post.User?.id })}
+        onPress={() => navigation.navigate("Profile", { id: post.postUserId })}
         style={styles.header}
       >
         {/* Post Header with details about the author */}
         <View style={styles.header}>
-          <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+          <Image source={{ uri: post.User?._j?.image || dummy_img }} style={styles.profileImage} />
           <View>
-            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.name}>{post.User._j.name ?? "Random"}</Text>
             <Text style={styles.subtitle}>{post.createdAt}</Text>
           </View>
           <Entypo
@@ -110,7 +102,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   header: {
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingTop: 10,
     flexDirection: "row",
     alignItems: "center",
     width: "100%",

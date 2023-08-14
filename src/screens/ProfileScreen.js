@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +8,7 @@ import {
   Dimensions,
   FlatList,
   Pressable,
+  Alert
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import FeedPost from "../components/FeedPost";
@@ -17,8 +19,8 @@ import {
   Ionicons,
   Entypo,
 } from "@expo/vector-icons";
-import { Auth } from 'aws-amplify'
-import user from "../../assets/data/user.json";
+import { Auth, DataStore } from 'aws-amplify'
+import { Post, User } from '../../src/models'
 
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
@@ -98,13 +100,40 @@ const ProfileScreenHeader = ({ user, isMe = false }) => {
 };
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
   const route = useRoute();
+  
 
-  console.warn("User: ", route?.params?.id);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await Auth.currentAuthenticatedUser();
+      const userId = route?.params?.id || userData.attributes.sub;
+
+      if (!userId) return;
+      const isMe = userId === userData.attributes.sub;
+
+      const dbUser = await DataStore.query(User, userId);
+      if (!dbUser) {
+        if (isMe) {
+          navigation.navigate("Update Profile");
+        } else {
+          Alert.alert("Error", "User not found");
+        }
+      }
+      setUser(dbUser);
+
+      // query posts by user
+      DataStore.query(Post, (p) => p.postUserId.eq(userId)).then(setPosts); 
+    }
+
+    fetchUser();
+  }, [])
 
   return (
     <FlatList
-      data={user.posts}
+      data={posts}
       renderItem={({ item }) => <FeedPost post={item} />}
       showsVerticalScrollIndicator={false}
       ListHeaderComponent={() => (

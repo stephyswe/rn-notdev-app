@@ -16,12 +16,20 @@ const FeedScreen = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    DataStore.query(Post).then(setPosts);
-  }, []);
+    const fetchPosts = async () => {
+      let postData = await DataStore.query(Post);
+      // show posts that are not deleted (filter out posts with _deleted as undefined)
+      const filteredData = postData.filter(post => post._deleted !== undefined);
+      setPosts(filteredData);
+    };
+    fetchPosts();
+}, [])
 
   const createPost = () => {
     navigation.navigate("Create Post");
   };
+
+  // remove all deleted posts
 
 
   return (

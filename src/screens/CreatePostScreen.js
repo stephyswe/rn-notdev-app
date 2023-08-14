@@ -9,13 +9,6 @@ import { DataStore } from "@aws-amplify/datastore";
 import { Post } from "../models";
 import { Auth } from "aws-amplify";
 
-const user = {
-  id: "u1",
-  image:
-    "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/vadim.jpg",
-  name: "Vadim Savin",
-};
-
 const CreatePostScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
@@ -23,7 +16,6 @@ const CreatePostScreen = () => {
   const [image, setImage] = useState(null);
 
   const user = Auth.currentAuthenticatedUser();
-  console.log('user', user)
 
 
   const onPost = async () => {
@@ -52,8 +44,6 @@ const CreatePostScreen = () => {
       aspect: [4, 3],
       quality: 1,
     });
-
-    console.log(result);
 
     if (!result.canceled) {
       setImage(result.uri);
