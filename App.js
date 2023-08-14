@@ -10,6 +10,10 @@ import awsconfig from "./src/aws-exports";
 Amplify.configure({ ...awsconfig, Analytics: { disabled: true } });
 
 function App() {
+  // weird fix
+  if (!Symbol.asyncIterator) {
+    Symbol.asyncIterator = Symbol.for('Symbol.asyncIterator');
+  }
   return (
     <SafeAreaProvider style={styles.container}>
       <StatusBar style="auto" />

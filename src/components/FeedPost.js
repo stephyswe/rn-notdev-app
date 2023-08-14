@@ -15,26 +15,37 @@ export default function FeedPost({ post }) {
   const [isLiked, setIsLiked] = useState(false);
   const navigation = useNavigation();
 
+  let imageUrl
+  let name
+  if (post.User._j?.image) {
+    imageUrl = post.User?._j?.image
+    name = post.User?._j?.name
+  } else {
+    name = "Random"
+    imageUrl = "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/vadim.jpg"
+  }
+
+
   return (
     <View style={styles.post}>
-       <Pressable
+      <Pressable
         onPress={() => navigation.navigate("Profile", { id: post.User?.id })}
         style={styles.header}
       >
-      {/* Post Header with details about the author */}
-      <View style={styles.header}>
-        <Image source={{ uri: post.User.image }} style={styles.profileImage} />
-        <View>
-          <Text style={styles.name}>{post.User.name}</Text>
-          <Text style={styles.subtitle}>{post.createdAt}</Text>
+        {/* Post Header with details about the author */}
+        <View style={styles.header}>
+          <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+          <View>
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.subtitle}>{post.createdAt}</Text>
+          </View>
+          <Entypo
+            name="dots-three-horizontal"
+            size={18}
+            color="gray"
+            style={styles.icon}
+          />
         </View>
-        <Entypo
-          name="dots-three-horizontal"
-          size={18}
-          color="gray"
-          style={styles.icon}
-        />
-      </View>
       </Pressable>
 
       {/* Post body with description and image */}
