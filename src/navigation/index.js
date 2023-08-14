@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import FeedScreen from "../screens/FeedScreen";
 import CreatePostScreen from "../screens/CreatePostScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import UpdateProfileScreen from "../screens/UpdateProfileScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,7 @@ const Navigator = () => {
         />
         <Stack.Screen name="Create Post" component={CreatePostScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="Update Profile" component={UpdateProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
