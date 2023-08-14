@@ -1,26 +1,19 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
-import FeedScreen from "./src/screens/FeedScreen";
-import CreatePostScreen from "./src/screens/CreatePostScreen";
+import { StyleSheet } from "react-native";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Navigator from "./src/navigation";
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        <StatusBar style="auto" />
-        <CreatePostScreen />
-      </View>
+    <SafeAreaProvider style={styles.container}>
+      <StatusBar style="auto" />
+      <Navigator />
     </SafeAreaProvider>
-
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "lightgray",
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
