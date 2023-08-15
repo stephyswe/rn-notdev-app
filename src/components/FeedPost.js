@@ -5,18 +5,27 @@ import {
   FontAwesome5,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { S3Image } from "aws-amplify-react-native";
+import { DataStore } from 'aws-amplify';
 
 import LikeImage from "../../assets/images/like.png";
+import { User } from "../models";
+
 
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
 
 /* Post component */
 export default function FeedPost({ post }) {
-  const [isLiked, setIsLiked] = useState(false);
   const navigation = useNavigation();
+  const [isLiked, setIsLiked] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    DataStore.query(User, post.postUserId).then(setUser);
+  }, [])
 
   return (
     <View style={styles.post}>
@@ -26,9 +35,13 @@ export default function FeedPost({ post }) {
       >
         {/* Post Header with details about the author */}
         <View style={styles.header}>
-          <Image source={{ uri: post.User?._j?.image || dummy_img }} style={styles.profileImage} />
+          {user ? (<S3Image imgKey={user.image} style={styles.profileImage} />
+          ) : (
+          <Image source={{ uri: dummy_img }} style={styles.profileImage} />
+          )}
+
           <View>
-            <Text style={styles.name}>{post.User._j.name ?? "Random"}</Text>
+            <Text style={styles.name}>{user?.name ?? "Random"}</Text>
             <Text style={styles.subtitle}>{post.createdAt}</Text>
           </View>
           <Entypo
@@ -43,11 +56,7 @@ export default function FeedPost({ post }) {
       {/* Post body with description and image */}
       <Text style={styles.description}>{post.description}</Text>
       {post.image && (
-        <Image
-          source={{ uri: post.image }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        <S3Image imgKey={post.image} style={styles.image} resizeMode="cover" />
       )}
 
       {/* Post footer with likes and button */}

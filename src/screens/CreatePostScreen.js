@@ -5,9 +5,16 @@ import { Entypo } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import { DataStore } from "@aws-amplify/datastore";
+import { Auth, Storage } from "aws-amplify";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
+import { Buffer } from 'buffer';
 
 import { Post } from "../models";
-import { Auth } from "aws-amplify";
+
+const base64ToUint8Array = (base64) => {
+  return new Uint8Array(Buffer.from(base64, 'base64'));
+};
 
 const CreatePostScreen = () => {
   const navigation = useNavigation();
@@ -20,22 +27,42 @@ const CreatePostScreen = () => {
 
   const onPost = async () => {
     const user = await Auth.currentAuthenticatedUser();
-    await DataStore.save(
-      new Post({
-        description: description,
-        // "imag": "Lorem ipsum dolor sit amet",
-        numberOfLikes: 2,
-        numberOfShares: 4,
-        postUserId: user.attributes.sub,
-        _version: 1
-      })
-    );
+    const newPost = {
+      description: description,
+      numberOfLikes: 0,
+      numberOfShares: 0,
+      postUserId: user.attributes.sub,
+      _version: 1,
+    };
+
+    if (image) {
+      newPost.image = await uploadFile(image);
+    }
+
+    await DataStore.save(new Post(newPost));
 
     setDescription("");
     setImage("");
 
     navigation.goBack();
   };
+
+  const uploadFile = async (fileUri) => {
+    try {
+      const response = await fetch(fileUri);
+      const blob = await response.blob();
+
+      const key = `${uuidv4()}.png`;
+      await Storage.put(key, blob, {
+        contentType: "image/png",
+      });
+
+      return key;
+
+    } catch (err) {
+      console.log("Error uploading file:", err);
+    }
+  }
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({

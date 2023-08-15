@@ -16,5 +16,11 @@ export type AmplifyDependentResourcesAttributes = {
       "UserPoolId": "string",
       "UserPoolName": "string"
     }
+  },
+  "storage": {
+    "s3notjustfriendsstorage170f00f1": {
+      "BucketName": "string",
+      "Region": "string"
+    }
   }
 }

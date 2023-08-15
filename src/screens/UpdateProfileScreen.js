@@ -11,9 +11,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { API, Auth, DataStore, graphqlOperation } from 'aws-amplify'
-import { User } from "../models";
+import { API, Auth, DataStore, graphqlOperation, Storage } from 'aws-amplify'
 import { useNavigation } from "@react-navigation/native";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from "uuid";
+
+import { User } from "../models";
 
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
@@ -60,12 +63,13 @@ const UpdateProfileScreen = () => {
       quality: 1,
     });
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImage(result.uri);
     }
   };
 
   const onSave = async () => {
+    console.log('user', user)
     if (user) {
       await updateUser()
     } else {
@@ -75,8 +79,14 @@ const UpdateProfileScreen = () => {
   };
 
   const updateUser = async () => {
+    let imgKey = '';
+    if (image) {
+      imgKey = await uploadFile(image);
+    }
+
     await DataStore.save(User.copyOf(user, updated => {
       updated.name = name
+      if (imgKey) updated.image = imgKey
     }));
 
   }
@@ -88,8 +98,27 @@ const UpdateProfileScreen = () => {
       name,
       _version: 1
     }
+
+    if (image) {
+      newUser.image = await uploadFile(image);
+    }
+
     await API.graphql(graphqlOperation(createUser, { input: newUser }))
   }
+
+  const uploadFile = async (fileUri) => {
+    try {
+      const response = await fetch(fileUri);
+      const blob = await response.blob();
+      const key = `${uuidv4()}.png`;
+      await Storage.put(key, blob, {
+        contentType: "image/png",
+      });
+      return key;
+    } catch (err) {
+      console.log("Error uploading file:", err);
+    }
+  };
 
   return (
     <KeyboardAvoidingView

@@ -14,6 +14,9 @@
     "categories": {
       "auth": {
         "notJustFriends": {}
+      },
+      "storage": {
+        "s3notjustfriendsstorage170f00f1": {}
       }
     }
   }

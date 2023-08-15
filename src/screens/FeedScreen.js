@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { FlatList, StyleSheet, Image, Text, Pressable } from "react-native";
-import FeedPost from "../components/FeedPost";
+import { FlatList, StyleSheet, Text, Pressable } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { DataStore } from '@aws-amplify/datastore';
+import { Predicates, SortDirection } from '@aws-amplify/datastore';
 
+import FeedPost from "../components/FeedPost";
 import { Post } from '../models';
 
 const img =
@@ -16,21 +17,23 @@ const FeedScreen = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      let postData = await DataStore.query(Post);
+    const subscription = DataStore.observeQuery(Post, Predicates.ALL, {
+      sort: (s) => s.createdAt(SortDirection.DESCENDING),
+    }).subscribe(({ items }) => {
       // show posts that are not deleted (filter out posts with _deleted as undefined)
-      const filteredData = postData.filter(post => post._deleted !== undefined);
+      const filteredData = items.filter(post => post._deleted !== undefined);
       setPosts(filteredData);
-    };
-    fetchPosts();
-}, [])
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  
+
 
   const createPost = () => {
     navigation.navigate("Create Post");
   };
-
-  // remove all deleted posts
-
 
   return (
     <FlatList

@@ -19,8 +19,10 @@ import {
   Ionicons,
   Entypo,
 } from "@expo/vector-icons";
+import { S3Image } from "aws-amplify-react-native";
 import { Auth, DataStore } from 'aws-amplify'
 import { Post, User } from '../../src/models'
+
 
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
@@ -39,10 +41,17 @@ const ProfileScreenHeader = ({ user, isMe = false }) => {
     return <ActivityIndicator />;
   }
 
+  console.log('user', user)
+
+
   return (
     <View style={styles.container}>
       <Image source={{ uri: bg }} style={styles.bg} />
-      <Image source={{ uri: user?.image || dummy_img }} style={styles.image} />
+      {user?.image ? (
+        <S3Image imgKey={user?.image} style={styles.image} />
+      ) : (
+        <Image source={{ uri: dummy_img }} style={styles.image} />
+      )}
 
       <Text style={styles.name}>{user.name}</Text>
 
@@ -104,7 +113,7 @@ const ProfileScreen = () => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const route = useRoute();
-  
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -125,7 +134,7 @@ const ProfileScreen = () => {
       setUser(dbUser);
 
       // query posts by user
-      DataStore.query(Post, (p) => p.postUserId.eq(userId)).then(setPosts); 
+      DataStore.query(Post, (p) => p.postUserId.eq(userId)).then(setPosts);
     }
 
     fetchUser();
